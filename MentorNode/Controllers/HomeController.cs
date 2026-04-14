@@ -29,4 +29,61 @@ public class AdminController : Controller
         return View();
     }
 
+public async Task<IActionResult> Users()
+    {
+        var users = await _db.Users
+            .OrderBy(u => u.Role)
+            .ThenBy(u => u.FullName)
+            .ToListAsync();
+        return View(users);
+    }
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> DeleteUser(string id)
+    {
+        var user = await _userManager.FindByIdAsync(id);
+        if (user is null) return NotFound();
+
+        if (user.Id == _userManager.GetUserId(User))
+        {
+            TempData["Error"] = "You cannot delete your own account.";
+            return RedirectToAction(nameof(Users));
+        }
+
+        await _userManager.DeleteAsync(user);
+        TempData["Success"] = $"User {user.FullName} deleted.";
+        return RedirectToAction(nameof(Users));
+    }
+
+    [HttpGet]
+    public IActionResult CreateUser() => View(new CreateUserViewModel());
+
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> CreateUser(CreateUserViewModel model)
+    {
+        if (!ModelState.IsValid) return View(model);
+
+        var user = new ApplicationUser
+        {
+            UserName = model.Email,
+            Email    = model.Email,
+            FullName = model.FullName,
+            Role     = model.Role,
+            EmailConfirmed = true
+        };
+
+        var result = await _userManager.CreateAsync(user, model.Password);
+        if (result.Succeeded)
+        {
+            await _userManager.AddToRoleAsync(user, model.Role);
+            TempData["Success"] = $"Account created for {model.FullName} as {model.Role}.";
+            return RedirectToAction(nameof(Users));
+        }
+
+        foreach (var e in result.Errors)
+            ModelState.AddModelError(string.Empty, e.Description);
+        return View(model);
+    }
+}
+
    
