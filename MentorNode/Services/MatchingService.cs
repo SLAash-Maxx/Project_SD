@@ -4,15 +4,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlindMatchPAS.Services;
 
-// ─── Interface ────────────────────────────────────────────────────────────────
 
 public interface IMatchingService
 {
-    /// <summary>Returns projects a supervisor can see, filtered by their expertise areas.
-    /// Student identity is NOT included.</summary>
+    
     Task<IEnumerable<BlindProjectCardViewModel>> GetBlindProjectsForSupervisorAsync(string supervisorId);
 
-    /// <summary>Supervisor expresses interest in a project (status → UnderReview).</summary>
     Task<bool> ExpressInterestAsync(string supervisorId, int projectId);
 
     /// <summary>Supervisor confirms a match. Triggers identity reveal.</summary>
