@@ -1,0 +1,131 @@
+@model StudentDashboardViewModel
+@{ ViewData["Title"] = "My Dashboard"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">Welcome, @Model.Student.FullName</h2>
+        <small class="text-muted">Student Portal</small>
+    </div>
+    <a asp-action="Submit" class="btn btn-primary">
+        <i class="bi bi-plus-circle"></i> Submit New Proposal
+    </a>
+</div>
+
+@{
+    var stats = new Dictionary<ProjectStatus, int>
+    {
+        [ProjectStatus.Pending]     = Model.Projects.Count(p => p.Status == ProjectStatus.Pending),
+        [ProjectStatus.UnderReview] = Model.Projects.Count(p => p.Status == ProjectStatus.UnderReview),
+        [ProjectStatus.Matched]     = Model.Projects.Count(p => p.Status == ProjectStatus.Matched),
+        [ProjectStatus.Withdrawn]   = Model.Projects.Count(p => p.Status == ProjectStatus.Withdrawn),
+    };
+}
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card text-center border-0 bg-secondary bg-opacity-10">
+            <div class="card-body py-3">
+                <div class="fs-2 fw-bold">@stats[ProjectStatus.Pending]</div>
+                <div class="small text-muted">Pending</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center border-0 bg-warning bg-opacity-10">
+            <div class="card-body py-3">
+                <div class="fs-2 fw-bold text-warning">@stats[ProjectStatus.UnderReview]</div>
+                <div class="small text-muted">Under Review</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center border-0 bg-success bg-opacity-10">
+            <div class="card-body py-3">
+                <div class="fs-2 fw-bold text-success">@stats[ProjectStatus.Matched]</div>
+                <div class="small text-muted">Matched</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center border-0 bg-danger bg-opacity-10">
+            <div class="card-body py-3">
+                <div class="fs-2 fw-bold text-danger">@stats[ProjectStatus.Withdrawn]</div>
+                <div class="small text-muted">Withdrawn</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<h5 class="mb-3">My Proposals</h5>
+
+@if (!Model.Projects.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> You haven't submitted any proposals yet.
+        <a asp-action="Submit">Submit your first one!</a>
+    </div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var p in Model.Projects)
+        {
+            var badgeClass = p.Status switch
+            {
+                ProjectStatus.Pending     => "bg-secondary",
+                ProjectStatus.UnderReview => "bg-warning text-dark",
+                ProjectStatus.Matched     => "bg-success",
+                ProjectStatus.Withdrawn   => "bg-danger",
+                ProjectStatus.Rejected    => "bg-dark",
+                _                         => "bg-secondary"
+            };
+
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm border-0">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="card-title mb-0">@p.Title</h6>
+                            <span class="badge @badgeClass ms-2 flex-shrink-0">@p.Status</span>
+                        </div>
+                        <p class="card-text text-muted small mb-2">
+                            @(p.Abstract.Length > 120 ? p.Abstract[..120] + "…" : p.Abstract)
+                        </p>
+                        <div class="small text-muted mb-3">
+                            <i class="bi bi-tag"></i> @p.ResearchArea?.Name &nbsp;
+                            <i class="bi bi-calendar3"></i> @p.SubmittedAt.ToString("dd MMM yyyy")
+                        </div>
+
+                        @if (p.Status == ProjectStatus.Matched && p.IdentityRevealed && p.Supervisor is not null)
+                        {
+                            <div class="alert alert-success py-2 mb-2 small">
+                                <i class="bi bi-stars"></i> <strong>Matched!</strong>
+                                Supervisor: <strong>@p.Supervisor.FullName</strong>
+                                &mdash; <a href="mailto:@p.Supervisor.Email">@p.Supervisor.Email</a>
+                            </div>
+                        }
+
+                        <div class="d-flex gap-2">
+                            <a asp-action="Details" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> View
+                            </a>
+                            @if (p.Status != ProjectStatus.Matched && p.Status != ProjectStatus.Withdrawn)
+                            {
+                                <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-outline-secondary">
+                                    <i class="bi bi-pencil"></i> Edit
+                                </a>
+                                <form asp-action="Withdraw" method="post" class="d-inline"
+                                      onsubmit="return confirm('Withdraw this proposal?')">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@p.Id" />
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-x-circle"></i> Withdraw
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
