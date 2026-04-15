@@ -20,9 +20,9 @@ public class StudentController : Controller
                              UserManager<ApplicationUser> userManager,
                              IMatchingService matching)
     {
-        _db          = dbdb;
-        _userManager = userManagersystem;
-        _matching    = matchingmathc;
+        _db          = db;
+        _userManager = userManager;
+        _matching    = matching;
     }
 
     //Dashboard
