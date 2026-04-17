@@ -1,0 +1,58 @@
+@model SubmitProjectViewModel
+@{ ViewData["Title"] = "Submit Proposal"; }
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="bi bi-pencil-square"></i> New Project Proposal</h5>
+            </div>
+            <div class="card-body p-4">
+                <form asp-action="Submit" method="post">
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger small"></div>
+
+                    <div class="mb-3">
+                        <label asp-for="Title" class="form-label fw-semibold"></label>
+                        <input asp-for="Title" class="form-control" placeholder="e.g. AI-Powered Exam Proctoring System" autofocus />
+                        <span asp-validation-for="Title" class="text-danger small"></span>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Abstract" class="form-label fw-semibold"></label>
+                        <textarea asp-for="Abstract" class="form-control" rows="5"
+                            placeholder="Describe your project idea, objectives, and expected outcomes..."></textarea>
+                        <span asp-validation-for="Abstract" class="text-danger small"></span>
+                        <div class="form-text">200–2000 characters recommended.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="TechStack" class="form-label fw-semibold"></label>
+                        <input asp-for="TechStack" class="form-control" placeholder="e.g. Python, TensorFlow, React, PostgreSQL" />
+                        <span asp-validation-for="TechStack" class="text-danger small"></span>
+                        <div class="form-text">Comma-separated list of technologies you plan to use.</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="ResearchAreaId" class="form-label fw-semibold"></label>
+                        <select asp-for="ResearchAreaId" class="form-select"
+                            asp-items="@(new SelectList(Model.ResearchAreas, "Id", "Name"))">
+                            <option value="">— Select a research area —</option>
+                        </select>
+                        <span asp-validation-for="ResearchAreaId" class="text-danger small"></span>
+                    </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send"></i> Submit Proposal
+                        </button>
+                        <a asp-action="Dashboard" class="btn btn-outline-secondary">Cancel</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
