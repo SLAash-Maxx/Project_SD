@@ -1,0 +1,147 @@
+@model SupervisorDashboardViewModel
+@{ ViewData["Title"] = "Supervisor Dashboard"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">Supervisor Dashboard</h2>
+        <small class="text-muted">Browse proposals anonymously &mdash; student identities are hidden</small>
+    </div>
+</div>
+
+<!-- Expertise Areas -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-dark text-white">
+        <h6 class="mb-0"><i class="bi bi-tags"></i> My Research Expertise Areas</h6>
+    </div>
+    <div class="card-body">
+        <form asp-action="UpdateExpertise" method="post">
+            @Html.AntiForgeryToken()
+            <div class="row g-2 mb-3">
+                @foreach (var area in Model.AllAreas)
+                {
+                    <div class="col-md-4 col-sm-6">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="areaIds"
+                                   value="@area.Id" id="area_@area.Id"
+                                   @(Model.SelectedAreaIds.Contains(area.Id) ? "checked" : "") />
+                            <label class="form-check-label" for="area_@area.Id">
+                                @area.Name
+                                @if (!string.IsNullOrEmpty(area.Description))
+                                {
+                                    <br /><small class="text-muted">@area.Description</small>
+                                }
+                            </label>
+                        </div>
+                    </div>
+                }
+            </div>
+            <button type="submit" class="btn btn-sm btn-dark">
+                <i class="bi bi-save"></i> Save Preferences
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- Blind Review Queue -->
+<h5 class="mb-3">
+    <i class="bi bi-eye-slash-fill text-warning"></i>
+    Available Proposals (Anonymous)
+    <span class="badge bg-secondary ms-2">@Model.AvailableProjects.Count() available</span>
+</h5>
+
+@if (!Model.SelectedAreaIds.Any())
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i>
+        Select your expertise areas above to see matching proposals.
+    </div>
+}
+else if (!Model.AvailableProjects.Any())
+{
+    <div class="alert alert-secondary">
+        <i class="bi bi-inbox"></i> No proposals available in your selected areas at this time.
+    </div>
+}
+else
+{
+    <div class="row g-3 mb-5">
+        @foreach (var p in Model.AvailableProjects)
+        {
+            <div class="col-md-6">
+                <div class="card h-100 shadow-sm border-0 @(p.AlreadyInterested ? "border-start border-4 border-warning" : "")">
+                    <div class="card-body">
+                        <!-- BLIND: No student name shown anywhere in this card -->
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <h6 class="card-title mb-0">@p.Title</h6>
+                            <span class="badge bg-info text-dark ms-2">@p.ResearchArea</span>
+                        </div>
+                        <p class="card-text text-muted small mb-2">
+                            @(p.Abstract.Length > 150 ? p.Abstract[..150] + "…" : p.Abstract)
+                        </p>
+                        <div class="mb-3">
+                            @foreach (var tech in p.TechStack.Split(','))
+                            {
+                                <span class="badge bg-primary bg-opacity-75 me-1 mb-1">@tech.Trim()</span>
+                            }
+                        </div>
+
+                        @if (p.AlreadyInterested)
+                        {
+                            <div class="alert alert-warning py-2 mb-2 small">
+                                <i class="bi bi-clock-history"></i> You expressed interest &mdash;
+                                confirm the match below to reveal student identity.
+                            </div>
+                            <form asp-action="ConfirmMatch" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="projectId" value="@p.ProjectId" />
+                                <button class="btn btn-sm btn-success"
+                                        onclick="return confirm('Confirm match? This will reveal the student\'s identity.')">
+                                    <i class="bi bi-check-circle-fill"></i> Confirm Match &amp; Reveal
+                                </button>
+                            </form>
+                        }
+                        else
+                        {
+                            <form asp-action="ExpressInterest" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="projectId" value="@p.ProjectId" />
+                                <button class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-hand-thumbs-up"></i> Express Interest
+                                </button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+
+<!-- Confirmed / Matched Projects -->
+@if (Model.ConfirmedProjects.Any())
+{
+    <h5 class="mb-3">
+        <i class="bi bi-stars text-success"></i> My Matched Projects
+    </h5>
+    <div class="row g-3">
+        @foreach (var p in Model.ConfirmedProjects)
+        {
+            <div class="col-md-6">
+                <div class="card h-100 border-success border-2 shadow-sm">
+                    <div class="card-body">
+                        <h6 class="card-title">@p.Title</h6>
+                        <p class="small text-muted mb-2">@p.ResearchArea?.Name</p>
+                        <div class="alert alert-success py-2 mb-2 small">
+                            <i class="bi bi-person-check-fill"></i>
+                            <strong>Student:</strong> @p.Student.FullName &mdash;
+                            <a href="mailto:@p.Student.Email">@p.Student.Email</a>
+                        </div>
+                        <a asp-action="MatchedProject" asp-route-id="@p.Id" class="btn btn-sm btn-success">
+                            <i class="bi bi-eye"></i> View Details
+                        </a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
