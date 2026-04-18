@@ -1,0 +1,179 @@
+@model AllocationOverviewViewModel
+@{ ViewData["Title"] = "Allocation Overview"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-0">Allocation Overview</h2>
+        <small class="text-muted">Module Leader &mdash; full visibility of all matches</small>
+    </div>
+    <a asp-action="CreateUser" class="btn btn-primary">
+        <i class="bi bi-person-plus"></i> Add User
+    </a>
+</div>
+
+<!-- Stats -->
+@{
+    var matched   = Model.AllProjects.Count(p => p.Status == ProjectStatus.Matched);
+    var pending   = Model.AllProjects.Count(p => p.Status == ProjectStatus.Pending);
+    var reviewing = Model.AllProjects.Count(p => p.Status == ProjectStatus.UnderReview);
+}
+<div class="row g-3 mb-4">
+    <div class="col-md-3 col-6">
+        <div class="card text-center border-0 bg-primary bg-opacity-10">
+            <div class="card-body py-3">
+                <div class="fs-2 fw-bold text-primary">@Model.AllProjects.Count()</div>
+                <div class="small">Total Proposals</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="card text-center border-0 bg-success bg-opacity-10">
+            <div class="card-body py-3">
+                <div class="fs-2 fw-bold text-success">@matched</div>
+                <div class="small">Matched</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="card text-center border-0 bg-warning bg-opacity-10">
+            <div class="card-body py-3">
+                <div class="fs-2 fw-bold text-warning">@reviewing</div>
+                <div class="small">Under Review</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 col-6">
+        <div class="card text-center border-0 bg-secondary bg-opacity-10">
+            <div class="card-body py-3">
+                <div class="fs-2 fw-bold">@pending</div>
+                <div class="small">Pending</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Allocation Table -->
+<div class="card border-0 shadow-sm">
+    <div class="card-header bg-dark text-white d-flex justify-content-between">
+        <span><i class="bi bi-table"></i> All Projects</span>
+        <span class="badge bg-secondary">@Model.AllProjects.Count() total</span>
+    </div>
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Project Title</th>
+                        <th>Student</th>
+                        <th>Area</th>
+                        <th>Status</th>
+                        <th>Supervisor</th>
+                        <th>Matched</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var p in Model.AllProjects)
+                    {
+                        var rowClass = p.Status switch
+                        {
+                            ProjectStatus.Matched     => "table-success",
+                            ProjectStatus.UnderReview => "table-warning",
+                            ProjectStatus.Withdrawn   => "table-secondary",
+                            _                         => ""
+                        };
+                        <tr class="@rowClass">
+                            <td>
+                                <span class="fw-semibold">@p.Title</span>
+                                <br /><small class="text-muted">@(p.Abstract.Length > 60 ? p.Abstract[..60] + "…" : p.Abstract)</small>
+                            </td>
+                            <td>
+                                @p.Student?.FullName<br />
+                                <small class="text-muted">@p.Student?.Email</small>
+                            </td>
+                            <td><span class="badge bg-info text-dark">@p.ResearchArea?.Name</span></td>
+                            <td>
+                                @{
+                                    var badge = p.Status switch
+                                    {
+                                        ProjectStatus.Pending     => "bg-secondary",
+                                        ProjectStatus.UnderReview => "bg-warning text-dark",
+                                        ProjectStatus.Matched     => "bg-success",
+                                        ProjectStatus.Withdrawn   => "bg-danger",
+                                        _                         => "bg-dark"
+                                    };
+                                }
+                                <span class="badge @badge">@p.Status</span>
+                            </td>
+                            <td>
+                                @if (p.Supervisor is not null)
+                                {
+                                    @p.Supervisor.FullName
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">Unassigned</span>
+                                }
+                            </td>
+                            <td><small>@(p.MatchedAt?.ToString("dd MMM yy") ?? "—")</small></td>
+                            <td>
+                                @if (p.Status != ProjectStatus.Withdrawn)
+                                {
+                                    <button type="button" class="btn btn-sm btn-outline-dark"
+                                            data-bs-toggle="modal" data-bs-target="#reassignModal"
+                                            data-project-id="@p.Id"
+                                            data-project-title="@p.Title">
+                                        <i class="bi bi-arrow-repeat"></i> Reassign
+                                    </button>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Reassign Modal -->
+<div class="modal fade" id="reassignModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form asp-action="Reassign" method="post">
+                @Html.AntiForgeryToken()
+                <div class="modal-header">
+                    <h5 class="modal-title">Reassign Project</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Reassigning: <strong id="modalProjectTitle"></strong></p>
+                    <input type="hidden" name="projectId" id="modalProjectId" />
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Select Supervisor</label>
+                        <select name="supervisorId" class="form-select" required>
+                            <option value="">— Choose supervisor —</option>
+                            @foreach (var sv in Model.Supervisors)
+                            {
+                                <option value="@sv.Id">@sv.FullName (@sv.Email)</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-warning">Reassign</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+document.getElementById('reassignModal').addEventListener('show.bs.modal', function (e) {
+    const btn = e.relatedTarget;
+    document.getElementById('modalProjectId').value    = btn.dataset.projectId;
+    document.getElementById('modalProjectTitle').textContent = btn.dataset.projectTitle;
+});
+</script>
+}
