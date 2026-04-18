@@ -1,8 +1,63 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+@{
+    ViewData["Title"] = "Welcome";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="text-center py-5">
+    <div class="display-1 mb-3">
+        <i class="bi bi-shield-lock-fill text-primary"></i>
+    </div>
+    <h1 class="display-5 fw-bold">BlindMatch Project Approval System</h1>
+    <p class="lead text-muted col-md-7 mx-auto mt-3">
+        A fair, bias-free platform for matching student research proposals with the most
+        qualified academic supervisors — using <strong>anonymous blind review</strong>.
+    </p>
+    <div class="mt-4 d-flex justify-content-center gap-3 flex-wrap">
+        <a asp-controller="Account" asp-action="Login" class="btn btn-primary btn-lg px-5">
+            <i class="bi bi-box-arrow-in-right"></i> Sign In
+        </a>
+        <a asp-controller="Account" asp-action="Register" class="btn btn-outline-secondary btn-lg px-5">
+            <i class="bi bi-person-plus"></i> Register as Student
+        </a>
+    </div>
+</div>
+
+<hr class="my-5" />
+
+<div class="row g-4 text-center">
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body py-4">
+                <i class="bi bi-pencil-square fs-1 text-primary mb-3 d-block"></i>
+                <h5 class="card-title">Students Submit</h5>
+                <p class="card-text text-muted">
+                    Submit your research proposal with title, abstract, technology stack, and research area.
+                    Track your status in real time.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body py-4">
+                <i class="bi bi-eye-slash-fill fs-1 text-warning mb-3 d-block"></i>
+                <h5 class="card-title">Supervisors Review Blindly</h5>
+                <p class="card-text text-muted">
+                    Supervisors browse proposals anonymously — no student names visible.
+                    Selection is based purely on technical merit and area alignment.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body py-4">
+                <i class="bi bi-stars fs-1 text-success mb-3 d-block"></i>
+                <h5 class="card-title">Identity Revealed on Match</h5>
+                <p class="card-text text-muted">
+                    Once a supervisor confirms interest, both parties' identities are revealed
+                    and formal collaboration can begin.
+                </p>
+            </div>
+        </div>
+    </div>
 </div>
