@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using BlindMatchPAS.Models;
 using Microsoft.AspNetCore.Identity;
 
@@ -11,7 +12,7 @@ public static class DbSeeder
         var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
         var db          = services.GetRequiredService<ApplicationDbContext>();
 
-        await db.Database.EnsureCreatedAsync();
+        await db.Database.MigrateAsync();
 
         string[] roles = ["Student", "Supervisor", "ModuleLeader", "SystemAdmin"];
         foreach (var role in roles)
