@@ -1,0 +1,59 @@
+/* BlindMatch PAS – site.css */
+
+:root {
+    --brand-primary: #0d6efd;
+}
+
+body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* Navbar */
+.navbar-brand {
+    letter-spacing: 0.5px;
+}
+
+/* Cards */
+.card {
+    border-radius: 0.75rem;
+}
+
+.card-header {
+    border-radius: 0.75rem 0.75rem 0 0 !important;
+}
+
+/* Status badges */
+.badge {
+    font-weight: 500;
+    letter-spacing: 0.3px;
+}
+
+/* Table */
+.table th {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Blind card — left accent when interested */
+.border-start.border-warning {
+    border-left-width: 4px !important;
+}
+
+/* Smooth fade for alerts */
+.alert {
+    border-radius: 0.5rem;
+}
+
+/* Footer */
+footer {
+    border-top: 1px solid #343a40;
+}
+
+/* Responsive table scroll on mobile */
+@media (max-width: 576px) {
+    .table-responsive {
+        font-size: 0.85rem;
+    }
+}
