@@ -7,7 +7,7 @@
         <small class="text-muted">Student Portal</small>
     </div>
     <a asp-action="Submit" class="btn btn-primary">
-        <i class="bi bi-plus-circle"></i> Submit New Proposal
+         Submit New Proposal
     </a>
 </div>
 
@@ -61,7 +61,7 @@
 @if (!Model.Projects.Any())
 {
     <div class="alert alert-info">
-        <i class="bi bi-info-circle"></i> You haven't submitted any proposals yet.
+         You haven't submitted any proposals yet.
         <a asp-action="Submit">Submit your first one!</a>
     </div>
 }
@@ -91,14 +91,14 @@ else
                             @(p.Abstract.Length > 120 ? p.Abstract[..120] + "…" : p.Abstract)
                         </p>
                         <div class="small text-muted mb-3">
-                            <i class="bi bi-tag"></i> @p.ResearchArea?.Name &nbsp;
-                            <i class="bi bi-calendar3"></i> @p.SubmittedAt.ToString("dd MMM yyyy")
+                             @p.ResearchArea?.Name &nbsp;
+                             @p.SubmittedAt.ToString("dd MMM yyyy")
                         </div>
 
                         @if (p.Status == ProjectStatus.Matched && p.IdentityRevealed && p.Supervisor is not null)
                         {
                             <div class="alert alert-success py-2 mb-2 small">
-                                <i class="bi bi-stars"></i> <strong>Matched!</strong>
+                                 <strong>Matched!</strong>
                                 Supervisor: <strong>@p.Supervisor.FullName</strong>
                                 &mdash; <a href="mailto:@p.Supervisor.Email">@p.Supervisor.Email</a>
                             </div>
@@ -106,19 +106,19 @@ else
 
                         <div class="d-flex gap-2">
                             <a asp-action="Details" asp-route-id="@p.Id" class="btn btn-sm btn-outline-primary">
-                                <i class="bi bi-eye"></i> View
+                                 View
                             </a>
                             @if (p.Status != ProjectStatus.Matched && p.Status != ProjectStatus.Withdrawn)
                             {
                                 <a asp-action="Edit" asp-route-id="@p.Id" class="btn btn-sm btn-outline-secondary">
-                                    <i class="bi bi-pencil"></i> Edit
+                                     Edit
                                 </a>
                                 <form asp-action="Withdraw" method="post" class="d-inline"
                                       onsubmit="return confirm('Withdraw this proposal?')">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="id" value="@p.Id" />
                                     <button type="submit" class="btn btn-sm btn-outline-danger">
-                                        <i class="bi bi-x-circle"></i> Withdraw
+                                         Withdraw
                                     </button>
                                 </form>
                             }

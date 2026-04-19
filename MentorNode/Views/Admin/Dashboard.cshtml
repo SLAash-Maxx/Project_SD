@@ -7,8 +7,8 @@
 
 <div class="d-flex justify-content-between align-items-center mb-4">
     <div>
-        <h2 class="mb-0"><i class="bi bi-gear-fill text-warning"></i> System Administration</h2>
-        <small class="text-muted">Infrastructure &amp; Security Overview</small>
+        <h2 class="mb-0">Admin Dashboard</h2>
+        
     </div>
 </div>
 
@@ -16,7 +16,6 @@
     <div class="col-md-4">
         <div class="card text-center border-0 bg-dark text-white shadow-sm">
             <div class="card-body py-4">
-                <i class="bi bi-people-fill fs-1 mb-2 d-block text-info"></i>
                 <div class="fs-1 fw-bold">@userCount</div>
                 <div>Total Users</div>
             </div>
@@ -25,7 +24,6 @@
     <div class="col-md-4">
         <div class="card text-center border-0 bg-dark text-white shadow-sm">
             <div class="card-body py-4">
-                <i class="bi bi-file-earmark-text-fill fs-1 mb-2 d-block text-warning"></i>
                 <div class="fs-1 fw-bold">@projectCount</div>
                 <div>Total Projects</div>
             </div>
@@ -34,7 +32,6 @@
     <div class="col-md-4">
         <div class="card text-center border-0 bg-dark text-white shadow-sm">
             <div class="card-body py-4">
-                <i class="bi bi-patch-check-fill fs-1 mb-2 d-block text-success"></i>
                 <div class="fs-1 fw-bold">@matchedCount</div>
                 <div>Matched Projects</div>
             </div>
@@ -46,35 +43,18 @@
     <div class="col-md-6">
         <div class="card border-0 shadow-sm h-100">
             <div class="card-header bg-dark text-white">
-                <i class="bi bi-people"></i> User Management
+                User Management
             </div>
             <div class="card-body">
                 <p class="text-muted">Create, view, and delete user accounts across all roles.</p>
                 <div class="d-flex gap-2">
                     <a asp-action="Users" class="btn btn-dark">
-                        <i class="bi bi-list-ul"></i> View All Users
+                        View All Users
                     </a>
                     <a asp-action="CreateUser" class="btn btn-primary">
-                        <i class="bi bi-person-plus"></i> Add User
+                        Add User
                     </a>
                 </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="card border-0 shadow-sm h-100">
-            <div class="card-header bg-dark text-white">
-                <i class="bi bi-shield-lock"></i> RBAC &amp; Security
-            </div>
-            <div class="card-body">
-                <p class="text-muted mb-2">Role-Based Access Control is <span class="badge bg-success">Active</span></p>
-                <ul class="list-unstyled small mb-0">
-                    <li><i class="bi bi-check-circle text-success"></i> Students cannot access Supervisor dashboards</li>
-                    <li><i class="bi bi-check-circle text-success"></i> Supervisors cannot see student identities until match confirmed</li>
-                    <li><i class="bi bi-check-circle text-success"></i> EF Core Migrations managing schema versioning</li>
-                    <li><i class="bi bi-check-circle text-success"></i> Anti-forgery tokens on all POST operations</li>
-                    <li><i class="bi bi-check-circle text-success"></i> Password hashing via ASP.NET Core Identity</li>
-                </ul>
             </div>
         </div>
     </div>

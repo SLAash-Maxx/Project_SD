@@ -1,0 +1,70 @@
+@model ManageAreasViewModel
+@{ ViewData["Title"] = "Manage Research Areas"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">Research Areas</h2>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-dark text-white">
+                 Existing Areas
+            </div>
+            <div class="card-body p-0">
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="table-light">
+                        <tr><th>Name</th><th>Description</th><th>Status</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var area in Model.Areas)
+                        {
+                            <tr>
+                                <td class="fw-semibold">@area.Name</td>
+                                <td class="text-muted small">@area.Description</td>
+                                <td>
+                                    <span class="badge @(area.IsActive ? "bg-success" : "bg-secondary")">
+                                        @(area.IsActive ? "Active" : "Inactive")
+                                    </span>
+                                </td>
+                                <td>
+                                    <form asp-action="ToggleArea" method="post" class="d-inline">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@area.Id" />
+                                        <button type="submit" class="btn btn-sm btn-outline-@(area.IsActive ? "danger" : "success")">
+                                            @(area.IsActive ? "Deactivate" : "Activate")
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-5">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                 Add New Area
+            </div>
+            <div class="card-body">
+                <form asp-action="AddArea" method="post">
+                    @Html.AntiForgeryToken()
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Area Name</label>
+                        <input type="text" name="name" class="form-control" required
+                               placeholder="e.g. Internet of Things" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold">Description</label>
+                        <input type="text" name="description" class="form-control"
+                               placeholder="Brief description..." />
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100">Add Area</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

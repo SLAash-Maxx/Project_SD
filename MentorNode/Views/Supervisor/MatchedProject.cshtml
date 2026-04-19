@@ -5,7 +5,7 @@
     <div class="col-md-8">
         <div class="card border-success border-2 shadow-sm">
             <div class="card-header bg-success text-white">
-                <h5 class="mb-0"><i class="bi bi-stars"></i> Matched Project</h5>
+                <h5 class="mb-0"> Matched Project</h5>
             </div>
             <div class="card-body p-4">
                 <h4>@Model.Title</h4>
@@ -27,7 +27,7 @@
                 <hr />
                 <div class="card bg-success bg-opacity-10 border-0">
                     <div class="card-body">
-                        <h6 class="text-success"><i class="bi bi-person-badge"></i> Student Details (Revealed)</h6>
+                        <h6 class="text-success"> Student Details (Revealed)</h6>
                         <p class="mb-1"><strong>Name:</strong> @Model.Student?.FullName</p>
                         <p class="mb-0"><strong>Email:</strong>
                             <a href="mailto:@Model.Student?.Email">@Model.Student?.Email</a>
@@ -40,7 +40,7 @@
             </div>
         </div>
         <a asp-action="Dashboard" class="btn btn-outline-secondary mt-3">
-            <i class="bi bi-arrow-left"></i> Back to Dashboard
+             Back to Dashboard
         </a>
     </div>
 </div>
