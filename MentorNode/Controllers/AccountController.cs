@@ -17,6 +17,7 @@ public class AccountController : Controller
         _signInManager = signInManager;
     }
 
+    // ── Login ─────────────────────────────────────────────────────────────────
     [HttpGet]
     public IActionResult Login(string? returnUrl = null)
     {
@@ -48,6 +49,7 @@ public class AccountController : Controller
         return View(model);
     }
 
+    // ── Logout ────────────────────────────────────────────────────────────────
     [HttpPost, ValidateAntiForgeryToken, Authorize]
     public async Task<IActionResult> Logout()
     {
@@ -55,13 +57,14 @@ public class AccountController : Controller
         return RedirectToAction("Index", "Home");
     }
 
+    // ── Register (self-register as Student only; other roles created by admin) ─
     [HttpGet]
     public IActionResult Register() => View();
 
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Register(RegisterViewModel model)
     {
-
+        // Force self-registration to Student role only
         model.Role = "Student";
 
         if (!ModelState.IsValid) return View(model);
@@ -91,6 +94,7 @@ public class AccountController : Controller
 
     public IActionResult AccessDenied() => View();
 
+    // ── Helper ────────────────────────────────────────────────────────────────
     private IActionResult RedirectToRoleDashboard(string role, string? returnUrl)
     {
         if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))

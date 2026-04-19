@@ -24,7 +24,7 @@ public class SupervisorController : Controller
         _matching    = matching;
     }
 
-    
+    // ── Dashboard ─────────────────────────────────────────────────────────────
     public async Task<IActionResult> Dashboard()
     {
         var user = await _userManager.GetUserAsync(User);
@@ -53,7 +53,7 @@ public class SupervisorController : Controller
         return View(vm);
     }
 
-    
+    // ── Update expertise areas ─────────────────────────────────────────────────
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> UpdateExpertise(int[] areaIds)
     {
@@ -75,7 +75,7 @@ public class SupervisorController : Controller
         return RedirectToAction(nameof(Dashboard));
     }
 
-   
+    // ── Express interest (blind) ──────────────────────────────────────────────
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> ExpressInterest(int projectId)
     {
@@ -89,7 +89,7 @@ public class SupervisorController : Controller
         return RedirectToAction(nameof(Dashboard));
     }
 
-    
+    // ── Confirm match (identity reveal) ──────────────────────────────────────
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> ConfirmMatch(int projectId)
     {
@@ -103,7 +103,7 @@ public class SupervisorController : Controller
         return RedirectToAction(nameof(Dashboard));
     }
 
-    
+    // ── View matched project detail (identities revealed) ────────────────────
     public async Task<IActionResult> MatchedProject(int id)
     {
         var user    = await _userManager.GetUserAsync(User);

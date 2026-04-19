@@ -7,6 +7,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlindMatchPAS.Controllers;
 
+// ─── System Admin ─────────────────────────────────────────────────────────────
+
 [Authorize(Roles = "SystemAdmin")]
 public class AdminController : Controller
 {
@@ -29,7 +31,8 @@ public class AdminController : Controller
         return View();
     }
 
-public async Task<IActionResult> Users()
+    // User management (full CRUD for all roles)
+    public async Task<IActionResult> Users()
     {
         var users = await _db.Users
             .OrderBy(u => u.Role)
@@ -44,6 +47,7 @@ public async Task<IActionResult> Users()
         var user = await _userManager.FindByIdAsync(id);
         if (user is null) return NotFound();
 
+        // Prevent self-deletion
         if (user.Id == _userManager.GetUserId(User))
         {
             TempData["Error"] = "You cannot delete your own account.";
@@ -86,6 +90,8 @@ public async Task<IActionResult> Users()
     }
 }
 
+// ─── Home ─────────────────────────────────────────────────────────────────────
+
 public class HomeController : Controller
 {
     public IActionResult Index()
@@ -105,6 +111,3 @@ public class HomeController : Controller
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error() => View();
 }
-
-
-   
