@@ -124,5 +124,31 @@ public class StudentController : Controller
         return RedirectToAction(nameof(Dashboard));
     }
 
-    
+    //Withdraw project
+    [HttpPost, ValidateAntiForgeryToken]
+    public async Task<IActionResult> Withdraw(int id)
+    {
+        var user = await _userManager.GetUserAsync(User);
+        var ok   = await _matching.WithdrawProjectAsync(user!.Id, id);
+
+        TempData[ok ? "Success" : "Error"] = ok
+            ? "Project withdrawn."
+            : "Cannot withdraw a matched project.";
+
+        return RedirectToAction(nameof(Dashboard));
+    }
+
+    //View project detail (with reveal if matched)
+    public async Task<IActionResult> Details(int id)
+    {
+        var user    = await _userManager.GetUserAsync(User);
+        var project = await _db.Projects
+            .Include(p => p.ResearchArea)
+            .Include(p => p.Supervisor)
+            .FirstOrDefaultAsync(p => p.Id == id && p.StudentId == user!.Id);
+
+        if (project is null) return NotFound();
+        return View(project);
+    }
+   
 }
