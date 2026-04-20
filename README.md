@@ -1,239 +1,387 @@
-# BlindMatch PAS — PUSL2020 Coursework
+# BlindMatch PAS
 
-> **Blind-Match Project Approval System** — ASP.NET Core 8 MVC  
-> NSBM Green University | In Partnership with Plymouth University  
-> Module: PUSL2020 Software Development Tools and Practices
+**Project Approval System — PUSL2020 Coursework 2026/2027**  
+National School of Business Management | In Partnership with Plymouth University  
+Module Leaders: Ms. Pavithra Subhashini | Mr. Anton Jayakody
 
 ---
 
-## Quick Start (5 minutes)
+## What This System Does
 
-### Prerequisites
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- Git
+BlindMatch PAS is a secure, web-based Project Approval System that matches student
+research proposals with academic supervisors using **Blind Matching** — supervisors
+review proposals without seeing the student's identity. Only after a supervisor
+confirms their selection does the system reveal both parties' identities to each other.
 
-### Run the application
+---
 
-```bash
-# 1. Restore packages
-dotnet restore BlindMatchPAS.sln
+## Technology Stack
 
-# 2. Apply EF Core migrations and create the SQLite database
-cd BlindMatchPAS
-dotnet ef database update
+| Layer        | Technology                                |
+|--------------|-------------------------------------------|
+| Framework    | ASP.NET Core 8 MVC                        |
+| Language     | C# 12                                     |
+| Database     | SQLite via Entity Framework Core 8        |
+| Auth / RBAC  | ASP.NET Core Identity                     |
+| UI           | Razor Views + Bootstrap 5.3               |
+| Testing      | xUnit + Moq + FluentAssertions            |
 
-# 3. Run
-dotnet run
+---
 
-# App starts at https://localhost:5001 / http://localhost:5000
+## Prerequisites
+
+Before running this project, install the following:
+
+1. **[.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)**
+   — verify with: `dotnet --version` (should show `8.0.x`)
+
+2. **[Git](https://git-scm.com/download/win)**
+   — verify with: `git --version`
+
+3. **EF Core CLI Tools** — install once, globally:
+   ```powershell
+   dotnet tool install --global dotnet-ef
+   ```
+   Verify with: `dotnet ef --version`
+
+---
+
+## Project Structure
+
+```
+PUSL2020 Final Upload/
+├── BlindMatchPAS.sln                    ← Solution file (open this in VS)
+│
+├── BlindMatchPAS/                       ← Main web application
+│   ├── Controllers/
+│   │   ├── AccountController.cs         ← Login, Register, Logout
+│   │   ├── StudentController.cs         ← Submit, Edit, Withdraw, Track
+│   │   ├── SupervisorController.cs      ← Blind dashboard, Interest, Confirm match
+│   │   ├── ModuleLeaderController.cs    ← Oversight, User mgmt, Research areas
+│   │   └── HomeController.cs            ← Landing page + System Admin
+│   ├── Models/
+│   │   ├── Domain.cs                    ← All database entity classes
+│   │   └── ViewModels.cs               ← Typed view models per role
+│   ├── Services/
+│   │   └── MatchingService.cs           ← Blind-match business logic
+│   ├── Data/
+│   │   ├── ApplicationDbContext.cs      ← EF Core DbContext
+│   │   └── DbSeeder.cs                  ← Seeds roles + default accounts
+│   ├── Migrations/                      ← EF Core migration history
+│   ├── Views/                           ← Razor (.cshtml) UI files
+│   ├── wwwroot/css/site.css             ← Stylesheet
+│   ├── appsettings.json                 ← Connection string + config
+│   └── Program.cs                       ← DI setup + middleware pipeline
+│
+└── BlindMatchPAS.Tests/                 ← Test project
+    ├── Unit/MatchingServiceTests.cs      ← 18 unit tests (business logic)
+    ├── Integration/DatabaseIntegrationTests.cs  ← 7 integration tests (EF Core)
+    ├── Functional/ControllerTests.cs    ← 8 functional tests (Moq)
+    └── GlobalUsings.cs
 ```
 
-### Run the tests
+---
 
-```bash
-cd BlindMatchPAS.Tests
+## Running the Project
+
+### Step 1 — Restore NuGet packages
+
+Open PowerShell, navigate to the project root, and run:
+
+```powershell
+cd "C:\path\to\PUSL2020 Final Upload"
+dotnet restore BlindMatchPAS.sln
+```
+
+You should see: `Restore succeeded`.
+
+---
+
+### Step 2 — Set up the database
+
+Navigate into the main project folder and apply migrations:
+
+```powershell
+cd BlindMatchPAS
+dotnet ef database update
+```
+
+This creates `blindmatch.db` (SQLite database file) and runs the
+`20260413194636_InitialCreate` migration, which builds all tables.
+
+You should see: `Done.` at the end.
+
+> **If you see "no such table" errors when running:** Delete `blindmatch.db`
+> and run `dotnet ef database update` again to recreate it cleanly.
+
+---
+
+### Step 3 — Run the application
+
+```powershell
+dotnet run
+```
+
+Or, for **hot reload** (auto-refreshes when you edit files — recommended during development):
+
+```powershell
+dotnet watch run
+```
+
+The terminal will show the URL the app is running on:
+
+```
+Now listening on: http://localhost:5000
+```
+
+Open that URL in your browser.
+
+---
+
+### Step 4 — Log in
+
+Two accounts are created automatically on first run:
+
+| Role          | Email                             | Password      |
+|---------------|-----------------------------------|---------------|
+| System Admin  | `admin@blindmatch.ac.lk`          | `Admin@1234!` |
+| Module Leader | `moduleleader@blindmatch.ac.lk`   | `Leader@1234!`|
+
+> Students can self-register at `/Account/Register`.  
+> Supervisor accounts must be created by the Module Leader or Admin.
+
+---
+
+## Running the Tests
+
+### Run all 34 tests
+
+Navigate to the solution root (not the BlindMatchPAS subfolder):
+
+```powershell
+cd "C:\path\to\PUSL2020 Final Upload"
+dotnet test
+```
+
+Expected output:
+```
+Passed!  - Failed: 0, Passed: 34, Skipped: 0, Total: 34
+```
+
+---
+
+### Run with detailed output
+
+```powershell
 dotnet test --verbosity normal
 ```
 
----
-
-## Default Accounts (auto-seeded on first run)
-
-| Role          | Email                           | Password      |
-|---------------|---------------------------------|---------------|
-| System Admin  | admin@blindmatch.ac.lk          | Admin@1234!   |
-| Module Leader | moduleleader@blindmatch.ac.lk   | Leader@1234!  |
-
-Use the **Admin** or **Module Leader** dashboards to create Supervisor accounts.  
-Students can self-register via the public `/Account/Register` page.
+This shows each test name and whether it passed or failed.
 
 ---
 
-## Architecture Overview
+### Run a specific test file only
 
-```
-BlindMatchPAS/
-├── Controllers/
-│   ├── AccountController.cs       # Login, Register, Logout
-│   ├── StudentController.cs       # Submit, Edit, Withdraw, Details
-│   ├── SupervisorController.cs    # Blind dashboard, Interest, Confirm match
-│   ├── ModuleLeaderController.cs  # Oversight, User mgmt, Areas
-│   ├── HomeController.cs          # Landing page + role-based redirect
-│   └── AdminController.cs         # System-wide user/infrastructure admin
-│
-├── Models/
-│   ├── Domain.cs                  # ApplicationUser, Project, ResearchArea, …
-│   └── ViewModels.cs              # All typed view models
-│
-├── Services/
-│   └── MatchingService.cs         # IMatchingService + implementation
-│                                  #   — blind project list
-│                                  #   — express interest (state: → UnderReview)
-│                                  #   — confirm match  (state: → Matched + reveal)
-│                                  #   — withdraw        (state: → Withdrawn)
-│                                  #   — reassign (Module Leader intervention)
-│
-├── Data/
-│   ├── ApplicationDbContext.cs    # EF Core DbContext + seed data
-│   └── DbSeeder.cs                # Roles + default admin accounts
-│
-├── Migrations/                    # EF Core migration history
-├── Views/                         # Razor views per controller
-└── wwwroot/css/site.css
+```powershell
+# Unit tests only (MatchingService logic)
+dotnet test --filter "FullyQualifiedName~Unit"
 
-BlindMatchPAS.Tests/
-├── Unit/MatchingServiceTests.cs        # 18 unit tests — matching logic
-├── Integration/DatabaseIntegrationTests.cs  # 8 integration tests — EF Core
-└── Functional/ControllerTests.cs       # 8 functional tests — Moq
-```
+# Integration tests only (EF Core database)
+dotnet test --filter "FullyQualifiedName~Integration"
 
-### Blind-Match State Machine
-
-```
-[Student submits]
-       │
-       ▼
-   PENDING  ◄──── Student can Edit or Withdraw here
-       │
-       │  Supervisor expresses interest
-       ▼
- UNDER REVIEW
-       │
-       │  Supervisor confirms match
-       ▼
-   MATCHED  ── IdentityRevealed = true  ── both parties see each other
-```
-
-Key rule enforced in `MatchingService.ConfirmMatchAsync`:
-- `IdentityRevealed` is set to `true` **only** at this point — never earlier.
-- The supervisor cannot confirm without first expressing interest.
-- Once matched, the project is immutable (no withdraw, no second confirm).
-
----
-
-## Role-Based Access Control (RBAC)
-
-All controllers are decorated with `[Authorize(Roles = "...")]`.
-
-| Controller       | Allowed Role(s)          |
-|------------------|--------------------------|
-| StudentController | Student                 |
-| SupervisorController | Supervisor           |
-| ModuleLeaderController | ModuleLeader       |
-| AdminController  | SystemAdmin              |
-| AccountController | Anonymous (Login/Register) |
-
-Configured in `Program.cs` via ASP.NET Core Identity. Cookie redirects:
-- Unauthenticated → `/Account/Login`
-- Wrong role → `/Account/AccessDenied`
-
----
-
-## Database (EF Core + SQLite)
-
-- **Provider:** SQLite (file `blindmatch.db`) — swap to SQL Server by changing the connection string in `appsettings.json`
-- **Migrations:** Located in `Migrations/` — run `dotnet ef database update` to apply
-- **Key relationships:**
-  - `Project → Student` (Restrict delete)
-  - `Project → Supervisor` (SetNull — project survives supervisor removal)
-  - `SupervisorInterest` has a unique composite index `(SupervisorId, ProjectId)`
-
-To add a new migration after schema changes:
-```bash
-dotnet ef migrations add <MigrationName>
-dotnet ef database update
+# Functional tests only (Controller + Moq)
+dotnet test --filter "FullyQualifiedName~Functional"
 ```
 
 ---
 
-## Dependency Injection
+### Run with code coverage
 
-All services registered in `Program.cs`:
-
-```csharp
-builder.Services.AddScoped<IMatchingService, MatchingService>();
-```
-
-`MatchingService` depends only on `ApplicationDbContext`, injected via constructor.  
-Controllers depend on `IMatchingService` (not the concrete class) — enabling full Moq mocking in tests.
-
----
-
-## Testing Strategy
-
-### Unit Tests (`MatchingServiceTests`) — 18 tests
-Tests the `MatchingService` business logic in isolation using the **EF Core InMemory provider**.
-Covers all state transitions: pending → under review → matched, plus edge cases (already matched, wrong student, non-existent project).
-
-### Integration Tests (`DatabaseIntegrationTests`) — 8 tests
-Tests EF Core persistence: CRUD operations, relational queries, full lifecycle end-to-end.
-
-### Functional Tests (`ControllerTests`) — 8 tests
-Tests controller action behaviour using **Moq** to mock `IMatchingService` and `UserManager`.
-Verifies redirect targets, TempData messages, and that service methods are called with correct arguments.
-
-### Run all tests with coverage (requires `coverlet`):
-```bash
+```powershell
 dotnet test --collect:"XPlat Code Coverage"
 ```
 
+A coverage report XML file is saved in `BlindMatchPAS.Tests/TestResults/`.
+To view it as HTML, install the report generator:
+
+```powershell
+dotnet tool install --global dotnet-reportgenerator-globaltool
+reportgenerator -reports:"BlindMatchPAS.Tests/TestResults/**/coverage.cobertura.xml" -targetdir:"coverage-report" -reporttypes:Html
+```
+
+Then open `coverage-report/index.html` in your browser.
+
 ---
 
-## Git Workflow (Professional Commit Strategy)
+### Test summary
 
-The recommended branching strategy for the group:
+| File                            | Type        | What it tests                        | Count |
+|---------------------------------|-------------|--------------------------------------|-------|
+| `Unit/MatchingServiceTests.cs`  | Unit        | Blind-match business logic           | 18    |
+| `Integration/DatabaseIntegrationTests.cs` | Integration | EF Core persistence + lifecycle | 7  |
+| `Functional/ControllerTests.cs` | Functional  | Controller actions via Moq           | 8     |
+| **Total**                       |             |                                      | **34**|
+
+---
+
+## User Roles and Access
+
+| Role          | What they can do                                               | Access URL              |
+|---------------|----------------------------------------------------------------|-------------------------|
+| Student       | Submit, edit, withdraw proposals; track status; see reveal     | `/Student/Dashboard`    |
+| Supervisor    | Set expertise areas; blind-review proposals; confirm matches   | `/Supervisor/Dashboard` |
+| Module Leader | View all allocations; manage areas; create users; reassign     | `/ModuleLeader/Dashboard` |
+| System Admin  | Full user management; infrastructure overview                  | `/Admin/Dashboard`      |
+
+> Role-Based Access Control is enforced via `[Authorize(Roles = "...")]` on
+> all controllers. Accessing the wrong dashboard redirects to `/Account/AccessDenied`.
+
+---
+
+## The Blind-Match Flow
+
+```
+Student submits proposal
+        ↓
+   Status: PENDING
+   (Student identity hidden from all supervisors)
+        ↓
+Supervisor selects their research expertise areas
+        ↓
+Supervisor sees proposals — NO student names shown
+        ↓
+Supervisor clicks "Express Interest"
+        ↓
+   Status: UNDER REVIEW
+        ↓
+Supervisor clicks "Confirm Match & Reveal"
+        ↓
+   Status: MATCHED
+   IdentityRevealed = true
+   ← Both parties can now see each other's name and email →
+```
+
+The identity reveal is controlled by a single boolean field —
+`Project.IdentityRevealed` — set to `true` only inside `ConfirmMatchAsync()`
+in `Services/MatchingService.cs`, and only after the supervisor's prior
+interest is validated.
+
+---
+
+## Database
+
+The project uses **SQLite** for portability. The database file `blindmatch.db`
+is created automatically in the `BlindMatchPAS/` folder when you run
+`dotnet ef database update`.
+
+### Switching to SQL Server (production)
+
+1. Change `appsettings.json`:
+   ```json
+   "DefaultConnection": "Server=.;Database=BlindMatchPAS;Trusted_Connection=True;"
+   ```
+
+2. Replace the SQLite package in `BlindMatchPAS.csproj`:
+   ```xml
+   <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
+   ```
+
+3. Update `Program.cs` — change `UseSqlite(...)` to `UseSqlServer(...)`.
+
+4. Re-run migrations:
+   ```powershell
+   dotnet ef database update
+   ```
+
+---
+
+## Adding a New EF Core Migration
+
+After changing any model class in `Models/Domain.cs`:
+
+```powershell
+cd BlindMatchPAS
+dotnet ef migrations add <DescriptiveName>
+dotnet ef database update
+```
+
+Example:
+```powershell
+dotnet ef migrations add AddIsUrgentToProjects
+dotnet ef database update
+```
+
+Always commit migration files to Git:
+```powershell
+git add Migrations/
+git commit -m "feat(migrations): add IsUrgent field to Projects table"
+```
+
+---
+
+## Git Workflow (Team)
+
+This project uses a feature-branch strategy:
 
 ```
 main
  └── develop
-      ├── feature/student-submission
-      ├── feature/blind-supervisor-dashboard
-      ├── feature/identity-reveal-logic
-      ├── feature/module-leader-oversight
-      ├── feature/admin-rbac
-      └── feature/testing-suite
+      ├── feature/setup-infrastructure      ← Member 1
+      ├── feature/authentication            ← Member 2
+      ├── feature/student-portal            ← Member 3
+      ├── feature/blind-matching            ← Member 4
+      ├── feature/admin-moduleleader        ← Member 5
+      └── feature/testing-suite             ← Member 6
 ```
 
-Each feature branch is merged to `develop` via Pull Request with at least one reviewer.  
-Merge to `main` only for release-ready versions.
+Each member works on their branch and creates a Pull Request to merge into `main`.
 
-Example commit message format:
+**Commit message format used:**
 ```
-feat(matching): implement identity reveal on supervisor confirm
+type(scope): short description
 
-- ConfirmMatchAsync sets IdentityRevealed=true only after interest validated
-- Adds MatchedAt timestamp on confirmation
-- Unit test: ConfirmMatch_SetsMatchedStatusAndRevealsIdentity
+Examples:
+feat(service): implement confirm match with identity reveal
+feat(views): add supervisor blind review dashboard
+test(unit): add 18 unit tests for MatchingService
+fix(auth): correct role redirect after login
 ```
 
 ---
 
-## Clean Code Principles Applied
+## Common Issues and Fixes
 
-- **Separation of concerns:** matching logic lives entirely in `IMatchingService`, never in controllers
-- **Dependency Injection:** all dependencies injected via constructor, testable via interfaces
-- **Data Annotations:** validation on all model properties (`[Required]`, `[StringLength]`, `[EmailAddress]`)
-- **Anti-forgery tokens:** on every POST action (`[ValidateAntiForgeryToken]`)
-- **No hardcoded strings:** connection strings in `appsettings.json`, roles as constants
-- **Nullable reference types:** enabled project-wide (`<Nullable>enable</Nullable>`)
+**"no such table: AspNetRoles" on startup**
+```powershell
+del blindmatch.db            # delete old database
+dotnet ef database update    # recreate all tables
+dotnet run
+```
+
+**"dotnet" is not recognised**
+> .NET SDK is not installed. Download from https://dotnet.microsoft.com/download/dotnet/8.0
+> After installing, close and reopen PowerShell.
+
+**"dotnet ef" is not recognised**
+```powershell
+dotnet tool install --global dotnet-ef
+```
+
+**Build failed — MigrateAsync not found**
+> Add `using Microsoft.EntityFrameworkCore;` at the top of `Data/DbSeeder.cs`.
+
+**Port already in use**
+```powershell
+dotnet run --urls "http://localhost:5001"
+```
 
 ---
 
-## Switching to SQL Server
+## Academic Information
 
-1. Change the connection string in `appsettings.json`:
-   ```json
-   "DefaultConnection": "Server=.;Database=BlindMatchPAS;Trusted_Connection=True;"
-   ```
-2. Replace the SQLite package in `.csproj`:
-   ```xml
-   <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
-   ```
-3. Update `Program.cs`:
-   ```csharp
-   options.UseSqlServer(...)
-   ```
-4. Re-run migrations:
-   ```bash
-   dotnet ef database update
-   ```
+- **Module:** PUSL2020 — Software Development Tools and Practices
+- **Assessment:** C1 — Group Coursework (50% of module marks)
+- **Semester:** Semester 2, 2026/2027
+- **Submission:** Via Plymouth Digital Learning Environment (DLE)
+- **Deliverable 1:** Source code + Git history (this repository)
+- **Deliverable 2:** Technical report (PDF, 2,000 words)
