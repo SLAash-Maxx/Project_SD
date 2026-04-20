@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BlindMatchPAS.Services;
 
-// ─── Interface ────────────────────────────────────────────────────────────────
 
 public interface IMatchingService
 {
@@ -25,7 +24,6 @@ public interface IMatchingService
     Task<bool> ReassignProjectAsync(int projectId, string newSupervisorId);
 }
 
-// ─── Implementation ───────────────────────────────────────────────────────────
 
 public class MatchingService : IMatchingService
 {
@@ -33,17 +31,13 @@ public class MatchingService : IMatchingService
 
     public MatchingService(ApplicationDbContext db) => _db = db;
 
-    // ── Blind project list ────────────────────────────────────────────────────
     public async Task<IEnumerable<BlindProjectCardViewModel>> GetBlindProjectsForSupervisorAsync(string supervisorId)
     {
-        // Get areas this supervisor has selected
         var areaIds = await _db.SupervisorExpertise
             .Where(e => e.SupervisorId == supervisorId)
             .Select(e => e.ResearchAreaId)
             .ToListAsync();
 
-        // Get projects that are Pending or UnderReview in those areas
-        // BLIND: we never project student name/id in the returned VM
         var projects = await _db.Projects
             .Include(p => p.ResearchArea)
             .Include(p => p.Interests)
@@ -67,11 +61,9 @@ public class MatchingService : IMatchingService
             ResearchArea    = p.ResearchArea.Name,
             Status          = p.Status,
             AlreadyInterested = interestedProjectIds.Contains(p.Id)
-            // ⚠ StudentId / Student.FullName are intentionally omitted
         });
     }
 
-    // ── Express interest ──────────────────────────────────────────────────────
     public async Task<bool> ExpressInterestAsync(string supervisorId, int projectId)
     {
         var project = await _db.Projects.FindAsync(projectId);
@@ -79,7 +71,6 @@ public class MatchingService : IMatchingService
                              || project.Status == ProjectStatus.Withdrawn)
             return false;
 
-        // Idempotent: don't duplicate interest records
         bool alreadyInterested = await _db.SupervisorInterests
             .AnyAsync(i => i.SupervisorId == supervisorId && i.ProjectId == projectId);
         if (alreadyInterested) return true;
@@ -95,7 +86,6 @@ public class MatchingService : IMatchingService
         return true;
     }
 
-    // ── Confirm match (identity reveal) ──────────────────────────────────────
     public async Task<bool> ConfirmMatchAsync(string supervisorId, int projectId)
     {
         var project = await _db.Projects
@@ -106,22 +96,19 @@ public class MatchingService : IMatchingService
                              || project.Status == ProjectStatus.Withdrawn)
             return false;
 
-        // Validate the supervisor previously expressed interest
         bool hasInterest = await _db.SupervisorInterests
             .AnyAsync(i => i.SupervisorId == supervisorId && i.ProjectId == projectId);
         if (!hasInterest) return false;
 
-        // ── IDENTITY REVEAL ────────────────────────────────────────────────
         project.SupervisorId      = supervisorId;
         project.Status            = ProjectStatus.Matched;
-        project.IdentityRevealed  = true;   // both parties can now see each other
+        project.IdentityRevealed  = true;   
         project.MatchedAt         = DateTime.UtcNow;
 
         await _db.SaveChangesAsync();
         return true;
     }
 
-    // ── Withdraw ──────────────────────────────────────────────────────────────
     public async Task<bool> WithdrawProjectAsync(string studentId, int projectId)
     {
         var project = await _db.Projects.FindAsync(projectId);
@@ -134,7 +121,6 @@ public class MatchingService : IMatchingService
         return true;
     }
 
-    // ── Manual reassign (Module Leader) ──────────────────────────────────────
     public async Task<bool> ReassignProjectAsync(int projectId, string newSupervisorId)
     {
         var project = await _db.Projects.FindAsync(projectId);
