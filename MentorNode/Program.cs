@@ -7,13 +7,10 @@ using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// ── Database ──────────────────────────────────────────────────────────────────
-// Using SQLite for portability; swap connection string for SQL Server in production
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")
         ?? "Data Source=blindmatch.db"));
 
-// ── Identity / RBAC ───────────────────────────────────────────────────────────
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 {
     options.Password.RequiredLength         = 8;
@@ -26,7 +23,6 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>(options =>
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
-// ── Auth cookie paths per role ────────────────────────────────────────────────
 builder.Services.ConfigureApplicationCookie(options =>
 {
     options.LoginPath       = "/Account/Login";
@@ -34,15 +30,12 @@ builder.Services.ConfigureApplicationCookie(options =>
     options.ExpireTimeSpan  = TimeSpan.FromHours(8);
 });
 
-// ── Application services (Dependency Injection) ───────────────────────────────
 builder.Services.AddScoped<IMatchingService, MatchingService>();
 
-// ── MVC ───────────────────────────────────────────────────────────────────────
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
-// ── Middleware pipeline ───────────────────────────────────────────────────────
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
@@ -65,7 +58,6 @@ app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// ── Seed database ─────────────────────────────────────────────────────────────
 using (var scope = app.Services.CreateScope())
 {
     await DbSeeder.SeedRolesAndAdminAsync(scope.ServiceProvider);
@@ -73,5 +65,4 @@ using (var scope = app.Services.CreateScope())
 
 app.Run();
 
-// expose for integration tests
 public partial class Program { }
