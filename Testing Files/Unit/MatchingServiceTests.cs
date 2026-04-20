@@ -17,7 +17,6 @@ public class MatchingServiceTests : IDisposable
     private readonly ApplicationDbContext _db;
     private readonly IMatchingService     _sut;
 
-    // ── Fixture helpers ───────────────────────────────────────────────────────
 
     private const string StudentId    = "student-1";
     private const string SupervisorId = "supervisor-1";
@@ -25,7 +24,7 @@ public class MatchingServiceTests : IDisposable
     public MatchingServiceTests()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(Guid.NewGuid().ToString())   // fresh DB per test
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())   
             .Options;
 
         _db  = new ApplicationDbContext(options);
@@ -53,13 +52,11 @@ public class MatchingServiceTests : IDisposable
         };
         _db.Users.AddRange(student, supervisor);
 
-        // Supervisor has selected area 1
         _db.SupervisorExpertise.Add(new SupervisorExpertise
         {
             Id = 1, SupervisorId = SupervisorId, ResearchAreaId = 1
         });
 
-        // One pending project
         _db.Projects.Add(new Project
         {
             Id = 1, Title = "Smart Proctoring", Abstract = "AI exam proctoring.",
@@ -72,7 +69,6 @@ public class MatchingServiceTests : IDisposable
 
     public void Dispose() => _db.Dispose();
 
-    // ── Tests: GetBlindProjects ───────────────────────────────────────────────
 
     [Fact]
     public async Task GetBlindProjects_ReturnsProjectsMatchingSupervisorAreas()
@@ -86,12 +82,9 @@ public class MatchingServiceTests : IDisposable
     [Fact]
     public async Task GetBlindProjects_DoesNotExposeStudentIdentity()
     {
-        // The ViewModel must not carry any student-identifying info
         var result = (await _sut.GetBlindProjectsForSupervisorAsync(SupervisorId)).ToList();
 
         result.Should().HaveCount(1);
-        // BlindProjectCardViewModel has no StudentId or StudentName property – compile-time guarantee.
-        // Runtime check: serialise and confirm no student ID leaks.
         var json = System.Text.Json.JsonSerializer.Serialize(result.First());
         json.Should().NotContain(StudentId, because: "blind view must not expose student identity");
     }
@@ -123,7 +116,6 @@ public class MatchingServiceTests : IDisposable
     [Fact]
     public async Task GetBlindProjects_EmptyWhenSupervisorHasNoAreas()
     {
-        // Remove expertise
         _db.SupervisorExpertise.RemoveRange(_db.SupervisorExpertise);
         await _db.SaveChangesAsync();
 
@@ -132,7 +124,6 @@ public class MatchingServiceTests : IDisposable
         result.Should().BeEmpty();
     }
 
-    // ── Tests: ExpressInterest ────────────────────────────────────────────────
 
     [Fact]
     public async Task ExpressInterest_ReturnsTrueAndChangesStatusToUnderReview()
@@ -160,7 +151,7 @@ public class MatchingServiceTests : IDisposable
     public async Task ExpressInterest_IsIdempotent_NoDuplicateRecords()
     {
         await _sut.ExpressInterestAsync(SupervisorId, 1);
-        var ok = await _sut.ExpressInterestAsync(SupervisorId, 1); // second call
+        var ok = await _sut.ExpressInterestAsync(SupervisorId, 1); 
 
         ok.Should().BeTrue();
         var count = await _db.SupervisorInterests.CountAsync(
@@ -187,7 +178,6 @@ public class MatchingServiceTests : IDisposable
         ok.Should().BeFalse();
     }
 
-    // ── Tests: ConfirmMatch (Identity Reveal) ─────────────────────────────────
 
     [Fact]
     public async Task ConfirmMatch_SetsMatchedStatusAndRevealsIdentity()
@@ -207,7 +197,6 @@ public class MatchingServiceTests : IDisposable
     [Fact]
     public async Task ConfirmMatch_ReturnsFalseWithoutPriorInterest()
     {
-        // No ExpressInterest call first
         var ok = await _sut.ConfirmMatchAsync(SupervisorId, 1);
         ok.Should().BeFalse();
     }
@@ -216,9 +205,9 @@ public class MatchingServiceTests : IDisposable
     public async Task ConfirmMatch_ReturnsFalseForAlreadyMatchedProject()
     {
         await _sut.ExpressInterestAsync(SupervisorId, 1);
-        await _sut.ConfirmMatchAsync(SupervisorId, 1);            // first confirm
+        await _sut.ConfirmMatchAsync(SupervisorId, 1);            
 
-        var ok = await _sut.ConfirmMatchAsync(SupervisorId, 1);  // duplicate
+        var ok = await _sut.ConfirmMatchAsync(SupervisorId, 1);  
         ok.Should().BeFalse();
     }
 
@@ -235,7 +224,6 @@ public class MatchingServiceTests : IDisposable
                                .And.BeOnOrBefore(after);
     }
 
-    // ── Tests: WithdrawProject ────────────────────────────────────────────────
 
     [Fact]
     public async Task Withdraw_SetsStatusToWithdrawn()
@@ -264,7 +252,6 @@ public class MatchingServiceTests : IDisposable
         ok.Should().BeFalse();
     }
 
-    // ── Tests: ReassignProject ────────────────────────────────────────────────
 
     [Fact]
     public async Task Reassign_ChangesProjectSupervisorAndRevealsIdentity()
