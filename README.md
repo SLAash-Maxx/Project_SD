@@ -140,7 +140,7 @@ Open that URL in your browser.
 
 ### Step 4 — Log in
 
-Two accounts are created automatically on first run:
+You can see the demo credentials in log in page
 
 | Role          | Email                             | Password      |
 |---------------|-----------------------------------|---------------|
