@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BlindMatchPAS.Models;
 
-// ─── Identity / Users ────────────────────────────────────────────────────────
 
 public class ApplicationUser : IdentityUser
 {
@@ -15,12 +14,10 @@ public class ApplicationUser : IdentityUser
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
-    // Navigation
     public ICollection<Project>         Projects          { get; set; } = [];
     public ICollection<SupervisorExpertise> Expertise     { get; set; } = [];
 }
 
-// ─── Research Areas ───────────────────────────────────────────────────────────
 
 public class ResearchArea
 {
@@ -38,7 +35,6 @@ public class ResearchArea
     public ICollection<SupervisorExpertise>  Expertise  { get; set; } = [];
 }
 
-// ─── Supervisor Expertise (many‑to‑many) ─────────────────────────────────────
 
 public class SupervisorExpertise
 {
@@ -50,7 +46,6 @@ public class SupervisorExpertise
     public ResearchArea    ResearchArea { get; set; } = null!;
 }
 
-// ─── Projects ─────────────────────────────────────────────────────────────────
 
 public enum ProjectStatus { Pending, UnderReview, Matched, Withdrawn, Rejected }
 
@@ -82,7 +77,6 @@ public class Project
     public DateTime SubmittedAt    { get; set; } = DateTime.UtcNow;
     public DateTime? MatchedAt     { get; set; }
 
-    // Navigation
     public ResearchArea    ResearchArea { get; set; } = null!;
     public ApplicationUser Student     { get; set; } = null!;
     public ApplicationUser? Supervisor { get; set; }
@@ -90,7 +84,6 @@ public class Project
     public ICollection<SupervisorInterest> Interests { get; set; } = [];
 }
 
-// ─── Supervisor Interest (expressed, not yet confirmed) ───────────────────────
 
 public class SupervisorInterest
 {
