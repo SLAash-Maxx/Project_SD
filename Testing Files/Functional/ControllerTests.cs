@@ -18,7 +18,6 @@ namespace BlindMatchPAS.Tests.Functional;
 /// </summary>
 public class SupervisorControllerTests
 {
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
     private static UserManager<ApplicationUser> MockUserManager(ApplicationUser user)
     {
@@ -48,7 +47,6 @@ public class SupervisorControllerTests
             }
         };
 
-        // Provide TempData so controller actions can set it
         ctrl.TempData = new TempDataDictionary(
             ctrl.ControllerContext.HttpContext,
             Mock.Of<ITempDataProvider>());
@@ -64,7 +62,6 @@ public class SupervisorControllerTests
         return new BlindMatchPAS.Data.ApplicationDbContext(options);
     }
 
-    // ── ExpressInterest ───────────────────────────────────────────────────────
 
     [Fact]
     public async Task ExpressInterest_RedirectsToDashboard_OnSuccess()
@@ -93,7 +90,6 @@ public class SupervisorControllerTests
         ctrl.TempData.ContainsKey("Error").Should().BeTrue();
     }
 
-    // ── ConfirmMatch ──────────────────────────────────────────────────────────
 
     [Fact]
     public async Task ConfirmMatch_RedirectsToDashboard_OnSuccess()
