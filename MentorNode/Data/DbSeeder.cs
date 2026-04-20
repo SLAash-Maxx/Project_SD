@@ -19,7 +19,6 @@ public static class DbSeeder
             if (!await roleManager.RoleExistsAsync(role))
                 await roleManager.CreateAsync(new IdentityRole(role));
 
-        // Create default system admin
         const string adminEmail = "admin@blindmatch.ac.lk";
         if (await userManager.FindByEmailAsync(adminEmail) is null)
         {
@@ -36,7 +35,6 @@ public static class DbSeeder
                 await userManager.AddToRoleAsync(admin, "SystemAdmin");
         }
 
-        // Create default module leader
         const string mlEmail = "moduleleader@blindmatch.ac.lk";
         if (await userManager.FindByEmailAsync(mlEmail) is null)
         {
