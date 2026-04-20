@@ -59,7 +59,6 @@ namespace BlindMatchPAS.Migrations
                 },
                 constraints: table => table.PrimaryKey("PK_ResearchAreas", x => x.Id));
 
-            // Identity junction tables
             migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
@@ -140,7 +139,6 @@ namespace BlindMatchPAS.Migrations
                         "AspNetUsers", "Id", onDelete: ReferentialAction.Cascade);
                 });
 
-            // Projects
             migrationBuilder.CreateTable(
                 name: "Projects",
                 columns: table => new
@@ -168,7 +166,6 @@ namespace BlindMatchPAS.Migrations
                         "AspNetUsers", "Id", onDelete: ReferentialAction.SetNull);
                 });
 
-            // Supervisor Expertise
             migrationBuilder.CreateTable(
                 name: "SupervisorExpertise",
                 columns: table => new
@@ -186,7 +183,6 @@ namespace BlindMatchPAS.Migrations
                         "ResearchAreas", "Id", onDelete: ReferentialAction.Cascade);
                 });
 
-            // Supervisor Interests
             migrationBuilder.CreateTable(
                 name: "SupervisorInterests",
                 columns: table => new
@@ -205,11 +201,9 @@ namespace BlindMatchPAS.Migrations
                         "AspNetUsers", "Id", onDelete: ReferentialAction.Cascade);
                 });
 
-            // Unique index on SupervisorInterests
             migrationBuilder.CreateIndex("IX_SupervisorInterests_SupervisorId_ProjectId",
                 "SupervisorInterests", new[] { "SupervisorId", "ProjectId" }, unique: true);
 
-            // Seed research areas
             migrationBuilder.InsertData("ResearchAreas",
                 new[] { "Id", "Name", "Description", "IsActive" },
                 new object[,]
