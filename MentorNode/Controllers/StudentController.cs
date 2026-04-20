@@ -25,7 +25,6 @@ public class StudentController : Controller
         _matching    = matching;
     }
 
-    //Dashboard
     public async Task<IActionResult> Dashboard()
     {
         var user = await _userManager.GetUserAsync(User);
@@ -39,7 +38,6 @@ public class StudentController : Controller
         return View(new StudentDashboardViewModel { Student = user!, Projects = projects });
     }
 
-    //Submit project
     [HttpGet]
     public async Task<IActionResult> Submit()
     {
@@ -76,7 +74,6 @@ public class StudentController : Controller
         return RedirectToAction(nameof(Dashboard));
     }
 
-    //Edit project
     [HttpGet]
     public async Task<IActionResult> Edit(int id)
     {
@@ -124,7 +121,6 @@ public class StudentController : Controller
         return RedirectToAction(nameof(Dashboard));
     }
 
-    //Withdraw project
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Withdraw(int id)
     {
@@ -138,7 +134,6 @@ public class StudentController : Controller
         return RedirectToAction(nameof(Dashboard));
     }
 
-    //View project detail (with reveal if matched)
     public async Task<IActionResult> Details(int id)
     {
         var user    = await _userManager.GetUserAsync(User);
