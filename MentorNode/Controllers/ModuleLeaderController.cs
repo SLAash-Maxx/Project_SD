@@ -24,7 +24,6 @@ public class ModuleLeaderController : Controller
         _matching    = matching;
     }
 
-    // ── Overview dashboard ────────────────────────────────────────────────────
     public async Task<IActionResult> Dashboard()
     {
         var allProjects = await _db.Projects
@@ -45,7 +44,6 @@ public class ModuleLeaderController : Controller
         });
     }
 
-    // ── Research Area Management ──────────────────────────────────────────────
     public async Task<IActionResult> ManageAreas()
         => View(new ManageAreasViewModel
         {
@@ -84,7 +82,6 @@ public class ModuleLeaderController : Controller
         return RedirectToAction(nameof(ManageAreas));
     }
 
-    // ── User management ───────────────────────────────────────────────────────
     public async Task<IActionResult> Users()
     {
         var users = await _db.Users.OrderBy(u => u.FullName).ToListAsync();
@@ -128,7 +125,6 @@ public class ModuleLeaderController : Controller
         return View(model);
     }
 
-    // ── Manual reassign ───────────────────────────────────────────────────────
     [HttpPost, ValidateAntiForgeryToken]
     public async Task<IActionResult> Reassign(int projectId, string supervisorId)
     {
