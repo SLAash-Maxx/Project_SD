@@ -2,7 +2,6 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BlindMatchPAS.Models;
 
-// ─── Account ──────────────────────────────────────────────────────────────────
 
 public class LoginViewModel
 {
@@ -35,7 +34,6 @@ public class RegisterViewModel
     public string Role { get; set; } = "Student";
 }
 
-// ─── Student ──────────────────────────────────────────────────────────────────
 
 public class SubmitProjectViewModel
 {
@@ -67,7 +65,6 @@ public class StudentDashboardViewModel
     public IEnumerable<Project> Projects { get; set; } = [];
 }
 
-// ─── Supervisor ───────────────────────────────────────────────────────────────
 
 /// <summary>Blind project card – no student identity exposed.</summary>
 public class BlindProjectCardViewModel
@@ -89,7 +86,6 @@ public class SupervisorDashboardViewModel
     public IEnumerable<int>                       SelectedAreaIds    { get; set; } = [];
 }
 
-// ─── Module Leader ────────────────────────────────────────────────────────────
 
 public class AllocationOverviewViewModel
 {
